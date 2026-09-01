@@ -36,6 +36,15 @@
 \renewcommand{\headrulewidth}{0.4pt}
 \fancyfoot{}
 \definecolor{darkblue}{rgb}{0,0,0.4}
+%%% Paleta estilo VS Code (tema Light+), pensada para papel blanco
+\definecolor{vscKeyword}{rgb}{0.00,0.00,1.00} % azul  - keywords (if, for, class, ...)
+\definecolor{vscControl}{rgb}{0.686,0.00,0.859} % violeta - control de flujo
+\definecolor{vscType}{rgb}{0.149,0.498,0.600}   % teal  - tipos (int, ll, vector, ...)
+\definecolor{vscString}{rgb}{0.639,0.082,0.082} % rojo  - strings y chars
+\definecolor{vscComment}{rgb}{0.00,0.502,0.00}  % verde - comentarios
+\definecolor{vscPreproc}{rgb}{0.482,0.219,0.078}% marron - directivas #include / #define
+\definecolor{vscNumber}{rgb}{0.035,0.525,0.345} % verde oscuro - literales numericos
+\definecolor{vscLineNo}{rgb}{0.60,0.60,0.60}    % gris  - numeros de linea
 %%% Configuracion de Listings
 \lstloadlanguages{C++}
 \lstnewenvironment{code}
@@ -52,35 +61,44 @@
 	numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=9pt,
 	frame=l, framesep=3pt,
 	basicstyle=\ttfamily,
-	keywordstyle=\color{darkblue}\ttfamily,
-	stringstyle=\color{magenta}\ttfamily,
-	commentstyle=\color{RedOrange}\ttfamily,
-	morecomment=[l][\color{OliveGreen}]{\#}
+	keywordstyle=\color{vscKeyword}\ttfamily,
+	stringstyle=\color{vscString}\ttfamily,
+	commentstyle=\color{vscComment}\itshape,
+	morecomment=[l][\color{vscPreproc}]{\#}
 }
 
 \lstdefinestyle{C++}{
-	language=C++, basicstyle=\small\ttfamily, keywordstyle=\slshape,
-	emph=[1]{tipo,usa,tipo2}, emphstyle={[1]\sffamily\bfseries},
-	morekeywords={tint,forn,forsn,fore},
+	language=C++,
 	basewidth={0.47em,0.40em},
 	columns=fixed, fontadjust, resetmargins, xrightmargin=5pt, xleftmargin=15pt,
 	flexiblecolumns=false, tabsize=2, breaklines, breakatwhitespace=false, extendedchars=true,
-	numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=9pt,
+	showstringspaces=false,
+	numbers=left, numberstyle=\tiny\color{vscLineNo}, stepnumber=1, numbersep=9pt,
 	frame=l, framesep=3pt,
 	basicstyle=\ttfamily,
-	keywordstyle=\color{darkblue}\ttfamily,
-	stringstyle=\color{magenta}\ttfamily,
-	commentstyle=\color{RedOrange}\ttfamily,
-	morecomment=[l][\color{OliveGreen}]{\#}
+	keywordstyle=\color{vscKeyword},
+	stringstyle=\color{vscString},
+	commentstyle=\color{vscComment}\itshape,
+	morecomment=[l][\color{vscPreproc}]{\#},
+	% tipos -> teal (emph gana sobre keywordstyle)
+	emph=[1]{%
+		int,long,short,char,bool,void,float,double,unsigned,signed,wchar_t,
+		size_t,string,vector,pair,map,set,multiset,unordered_map,unordered_set,
+		queue,deque,stack,priority_queue,array,bitset,tuple,auto,
+		ll,ld,pii,pll,vec,uint,ull},
+	emphstyle=[1]{\color{vscType}},
+	% control de flujo -> violeta
+	emph=[2]{if,else,for,while,do,switch,case,default,break,continue,return,goto},
+	emphstyle=[2]{\color{vscControl}}
 }
 
 \lstdefinestyle{Python}{
     language=Python,
     basicstyle=\small\ttfamily,
-    keywordstyle=\color{darkblue}\ttfamily,
-    stringstyle=\color{magenta}\ttfamily,
-    commentstyle=\color{RedOrange}\ttfamily,
-    morecomment=[l][\color{OliveGreen}]{\#},
+    keywordstyle=\color{vscKeyword}\ttfamily,
+    stringstyle=\color{vscString}\ttfamily,
+    commentstyle=\color{vscComment}\itshape,
+    morecomment=[l][\color{vscPreproc}]{\#},
     numbers=left,
     numberstyle=\tiny,
     stepnumber=1,
@@ -93,8 +111,8 @@
     tabsize=4,
     % Python-specific settings
     morekeywords={import,from,class,def,for,while,if,is,in,elif,else,try,except,finally,with,as,lambda,return,yield,break,continue,pass,raise},
-    emph=[1]{self},
-    emphstyle=[1]\color{OliveGreen}
+    emph=[1]{self,int,float,str,bool,list,dict,set,tuple,len,range,print},
+    emphstyle=[1]\color{vscType}
 }
 
 %%% Macros
