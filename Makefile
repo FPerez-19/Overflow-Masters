@@ -11,7 +11,15 @@ endif
 export CXX
 
 LATEXCMD = pdflatex -shell-escape -output-directory build/
-export TEXINPUTS=.:content/tex/:
+
+# TEXINPUTS separates paths with ';' on Windows and ':' everywhere else. Get it
+# wrong and pdflatex reports "notebook.sty not found" without saying why.
+ifeq ($(OS),Windows_NT)
+PATHSEP := ;
+else
+PATHSEP := :
+endif
+export TEXINPUTS=.$(PATHSEP)content/tex/$(PATHSEP)
 export max_print_line = 1048576
 
 help:
