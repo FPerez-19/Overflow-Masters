@@ -1,50 +1,62 @@
 # Overflow-Masters — notes for agents
 
-Competitive programming notebook. Each file in `src/<Topic>/` is a self-contained
-snippet that gets included into `guide.pdf` via `\cppfile{...}` in `guide.tex`.
+ICPC team notebook. Each file in `content/<chapter>/` is a self-contained snippet that
+gets printed into `notebook.pdf`. The build system is KACTL's: `content/tex/notebook.sty`
+plus `content/tex/preprocessor.py`, driven by `make`.
 
 ## Adding a snippet
 
-1. Create the `.cpp` / `.java` file under the matching `src/<Topic>/` folder.
-2. Add a `\subsection{...}` + `\cppfile{src/<Topic>/<file>}` line in `guide.tex`,
-   in the right section. Section/subsection order in the PDF is defined by
-   `guide.tex`, not by the filesystem.
-3. Run `./compile.sh` to rebuild `guide.pdf`.
+1. Create `content/<chapter>/YourThing.h` with a doc header (see below) and `#pragma once`.
+2. Add `\nbimport{YourThing.h}` to that chapter's `chapter.tex`. That file is the single
+   source of truth for what gets printed and in what order — the filesystem is not.
+3. `make showexcluded` must print nothing.
+4. `make test-compiles` must pass. `make fast` to see the page.
 
-Snippets assume the shared template (`src/Details/template.cpp`): macros like
-`L(i,a,b)`, `vec`, `pb`, `all`, types `ll`/`pii`, constants `oo`/`MOD`, and a
-global `N` for array sizes. Don't repeat includes or `using namespace std`.
+New chapter: create `content/<name>/chapter.tex` starting with `\chapter{Name}` and add
+`\nbchapter{<name>}` to `content/notebook.tex`.
 
-## Comment style (keep this consistent across all snippets)
-
-A header comment block at the top of each snippet, covering:
-
-- **What it is** — algorithm name, and the technique if not obvious.
-- **Complexity** — `O(...)` in terms of the snippet's variables (V, E, n, ...).
-- **What the entry point returns**, and the meaning of the return value —
-  including how to read off the answer / detect the failure case
-  (e.g. "if `order.size() < n` there is a cycle").
-- **Preconditions** — 0-indexed vs 1-indexed, graph must be a DAG, array `N`
-  large enough, etc. — only when they matter.
-
-Inline comments only for non-obvious decision points: a line the reader might
-want to tweak (e.g. "swap `queue` for `priority_queue` to get the
-lexicographically smallest order"), a subtle invariant, or a non-obvious index.
-
-Do **not** reference specific problems (no "CF 510C", no judge links). The
-snippet should read as a general-purpose reference.
-
-Example:
+## The doc header
 
 ```cpp
-// Kahn's algorithm: topological order of a DAG. O(V + E)
-// Returns an order containing all n nodes;
-// if order.size() < n the graph has a cycle (no valid topological order).
-vec<int> G[N];
-vec<int> topological_order(int n) {
-    ...
-    queue<int> q;  // priority_queue for the lexicographically smallest order
-    ...
-    return order;  // order.size() == n  <=>  graph is a DAG
-}
+/**
+ * Author: Franco Perez
+ * Date: 2026-09-05
+ * License: CC0
+ * Source: where it came from, or "folklore"
+ * Description: What it does, what it returns, how to read off the answer and how to
+ * detect the failure case, plus any precondition that matters (0- vs 1-indexed, DAG
+ * only, N large enough).
+ * Usage: what the caller must define or call first.
+ * Time: O(V + E)
+ * Status: untested
+ */
 ```
+
+- `Author` and `Description` are required; anything else fails the build.
+- Only the known fields (`Author`, `Date`, `Description`, `Source`, `Time`, `Memory`,
+  `License`, `Status`, `Usage`, `Details`) may appear as `Word:` at the start of a line —
+  the preprocessor reads any such line as a field name and errors on unknown ones.
+- `Description` is LaTeX text: write `\_` for an underscore, avoid `^ ~ # $ % &`.
+  `Usage` is escaped as code: write underscores plainly there.
+- `Time` is LaTeX math (`O(N \log N)`). **If you are not sure of the bound, write
+  `Time: unknown`** — a wrong bound in a notebook misleads someone under time pressure.
+- Do **not** reference specific problems (no "CF 510C", no judge links).
+
+Inline comments only for non-obvious decision points: a line the reader might want to
+tweak, a subtle invariant, a non-obvious index.
+
+## Conventions
+
+Snippets are written against `content/contest/Template.cpp`: `L(i,j,n)`, `RI(i,j,n)`,
+`sz(x)`, `all(x)`, `vec`, `pb`, `ll`, `ld`, `pii`, `pll`, `MOD`, `oo`. Never repeat
+includes or `using namespace std`, and never re-declare something the template already
+defines (`MOD` and `oo` above all) — it is a redefinition error under `test-compiles`.
+
+Every snippet must compile standalone; CI fails the build otherwise. When a snippet needs
+solution-level declarations to do that, put them in a deps block where every line ends in
+`// exclude-line`, which keeps them for the compiler while dropping them from both the
+printed page and the content hash. State what the caller must define in `Usage:` instead.
+
+Each snippet prints a six-character hash of its own tokens so it can be verified after
+being typed under contest conditions. Anything that changes a snippet's tokens changes its
+hash — that is intended, but it means cosmetic rewrites are not free.
