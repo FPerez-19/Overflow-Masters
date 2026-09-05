@@ -1,12 +1,13 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define L(i, j, n) for (int i = (j); i < (int)n; i++)
-#define R(i, j, n) for (int i = (j); i > (int)n; i--)
-#define SZ(x) int((x).size())
-#define ALL(x) begin(x), end(x)
-#define vec vec
+#define L(i, j, n) for (int i = j; i < (int)n; i++)
+#define RI(i, j, n) for (int i = j; i >= (int)n; i--)
+#define all(x) begin(x),end(x)
+#define vec vector
 #define pb push_back
-#define _CRT_SECURE_NO_WARNINGS
+#define sz(x) int((x).size())
+#define show(v) L(i, 0, v.size()) cout << v[i] << " "; cout << endl;
+#define db(x) cout << #x << "=" << x << endl
 #define ONLINE
 
 using ll = long long;
@@ -20,16 +21,13 @@ const int oo = (int)1e9;
 void solve() {}
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
     #ifdef ONLINE
     freopen("D:/src/input.txt", "r", stdin);
     freopen("D:/src/output.txt", "w", stdout);
     #endif
     int TC = 1;
-    // cin >> TC;
-    while (TC--) {
-        solve();
-    }
+    cin >> TC;
+    while (TC--) solve();
     return 0;
 }
