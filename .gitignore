@@ -1,8 +1,11 @@
 # LaTeX build artifacts
+build/
 *.aux
 *.log
 *.out
 *.toc
+*.ptc
+*.tmp
 *.fls
 *.fdb_latexmk
 *.synctex.gz
@@ -10,5 +13,5 @@
 *.snm
 *.vrb
 
-# Compiled notebook (uncomment the next line to keep it out of git)
-# guide.pdf
+# CI builds the notebook and publishes it as a release, so it is not committed.
+notebook.pdf
