@@ -26,6 +26,11 @@ def codeescape(input):
     input = input.replace('{', r'\{')
     input = input.replace('}', r'\}')
     input = input.replace('^', r'\ensuremath{\hat{\;}}')
+    # Usage is typeset as \texttt, not as a listing, so upquote does not reach
+    # it and T1 would render ' as a typographic U+2019. Code copied off the page
+    # has to be valid as typed, Usage lines included.
+    input = input.replace("'", r'\textquotesingle{}')
+    input = input.replace('`', r'\textasciigrave{}')
     input = escape(input)
     return input
 
