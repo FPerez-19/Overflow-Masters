@@ -17,7 +17,6 @@ if [ -z "$CXX" ]; then
 	done
 fi
 [ -n "$CXX" ] || { echo "test-compiles: no C++ compiler found" >&2; exit 1; }
-echo "using $CXX $("$CXX" -dumpversion 2>/dev/null)"
 
 TMP=build/test-compiles
 mkdir -p "$TMP"
@@ -27,16 +26,29 @@ trap 'rm -rf "$TMP"' EXIT
 # solve()/main(); keeps includes, macros and typedefs.
 sed -e '/^#pragma GCC/d' -e '/^void solve/,$d' content/contest/Template.cpp > "$TMP/prelude.h"
 
-fail=0; pass=0
-while IFS= read -r header; do
+STD=-std=c++20
+mapfile -t HEADERS < <(find content -name '*.h' | sort)
+total=${#HEADERS[@]}
+echo "using $CXX $("$CXX" -dumpversion 2>/dev/null), $total snippets"
+
+# Precompile the prelude once. Parsing <bits/stdc++.h> 31 times is most of the
+# runtime, and on Windows an antivirus scanning every invocation makes it minutes.
+# If this fails the include below still works, only slower.
+"$CXX" $STD -w -x c++-header "$TMP/prelude.h" -o "$TMP/prelude.h.gch" 2>/dev/null
+
+fail=0; pass=0; n=0
+for header in "${HEADERS[@]}"; do
+	n=$((n+1))
 	grep -q 'test-compiles: skip' "$header" && continue
+	printf '\r[%2d/%d] %-42s' "$n" "$total" "$header"
 	# Relative include plus -I. on purpose: under Git Bash an absolute path is
 	# POSIX ("/c/Users/...") while the compiler it launches is a native Windows
 	# binary that cannot open it, and paths inside the file are never converted.
-	{ cat "$TMP/prelude.h"; echo "#include \"$header\""; echo "int main(){}"; } > "$TMP/tu.cpp"
-	if err=$("$CXX" -std=c++20 -fsyntax-only -w -I. "$TMP/tu.cpp" 2>&1); then
+	{ echo '#include "prelude.h"'; echo "#include \"$header\""; echo "int main(){}"; } > "$TMP/tu.cpp"
+	if err=$("$CXX" $STD -fsyntax-only -w -I. "$TMP/tu.cpp" 2>&1); then
 		pass=$((pass+1))
 	else
+		printf '\r%-52s\r' ""
 		echo "FAIL $header"
 		# Fall back to the raw output: a failure with no "error:" line at all
 		# (compiler not found, bad flag) would otherwise be reported silently.
@@ -45,7 +57,8 @@ while IFS= read -r header; do
 		echo "$msg" | sed 's/^/      /'
 		fail=$((fail+1))
 	fi
-done < <(find content -name '*.h' | sort)
+done
+printf '\r%-52s\r' ""
 
 echo "$pass compile, $fail fail."
 [ "$fail" -eq 0 ]
