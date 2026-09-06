@@ -15,7 +15,7 @@
 struct UFDS { // exclude-line
     vec<int> p, size; int numSets, n; // exclude-line
     UFDS(int n) : p(n), size(n, 1), n(n) { // exclude-line
-        for (int i = 0; i < n; i++) p[i] = i; numSets = n; } // exclude-line
+        L(i, 0, n) p[i] = i; numSets = n; } // exclude-line
     int find(int i) { return (p[i] == i) ? i : (p[i] = find(p[i])); } // exclude-line
     void join(int i, int j) { int a = find(i), b = find(j); // exclude-line
         if (a != b) { if (size[b] > size[a]) swap(a, b); // exclude-line

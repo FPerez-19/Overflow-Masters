@@ -14,7 +14,7 @@
 int knapsack(int cap, vec<int> &w, vec<int> &v) {
     vec<int> dp(cap + 1, 0);
     L(i, 0, sz(w))
-        for (int j = cap; j >= w[i]; j--)
+        RI(j, cap, w[i])
             dp[j] = max(dp[j], v[i] + dp[j - w[i]]);
     return dp[cap];
 }
