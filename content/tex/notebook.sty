@@ -186,12 +186,23 @@
 }
 
 % VS Code Light+ palette, carried over from the old preamble.tex.
-\definecolor{vscKeyword}{rgb}{0.00,0.00,1.00}   % azul    - keywords
-\definecolor{vscControl}{rgb}{0.686,0.00,0.859} % violeta - control de flujo
-\definecolor{vscType}{rgb}{0.149,0.498,0.600}   % teal    - tipos
-\definecolor{vscString}{rgb}{0.639,0.082,0.082} % rojo    - strings y chars
-\definecolor{vscComment}{rgb}{0.00,0.502,0.00}  % verde   - comentarios
-\definecolor{vscPreproc}{rgb}{0.482,0.219,0.078}% marron  - #include / #define
+% Con \nbmono definido sale todo en negro puro, para imprimir en una impresora
+% que no rinde bien el color. La distincion la hacen negrita e italica.
+\ifdefined\nbmono
+	\definecolor{vscKeyword}{gray}{0}
+	\definecolor{vscControl}{gray}{0}
+	\definecolor{vscType}{gray}{0}
+	\definecolor{vscString}{gray}{0}
+	\definecolor{vscComment}{gray}{0}
+	\definecolor{vscPreproc}{gray}{0}
+\else
+	\definecolor{vscKeyword}{rgb}{0.00,0.00,1.00}   % azul    - keywords
+	\definecolor{vscControl}{rgb}{0.686,0.00,0.859} % violeta - control de flujo
+	\definecolor{vscType}{rgb}{0.149,0.498,0.600}   % teal    - tipos
+	\definecolor{vscString}{rgb}{0.639,0.082,0.082} % rojo    - strings y chars
+	\definecolor{vscComment}{rgb}{0.00,0.502,0.00}  % verde   - comentarios
+	\definecolor{vscPreproc}{rgb}{0.482,0.219,0.078}% marron  - #include / #define
+\fi
 
 % Configure source code listings
 \lstset{language=C++}
@@ -222,6 +233,13 @@
 \lstset{emphstyle={[1]\color{vscType}}}
 \lstset{emph={[2]if,else,for,while,do,switch,case,default,break,continue,return,goto}}
 \lstset{emphstyle={[2]\color{vscControl}}}
+
+% En blanco y negro el color ya no separa nada, asi que lo hace el peso.
+\ifdefined\nbmono
+	\lstset{keywordstyle=\bfseries\color{black}}
+	\lstset{emphstyle={[2]\bfseries\color{black}}}
+	\lstset{commentstyle=\itshape\color{black}}
+\fi
 
 \lstdefinelanguage{raw}{} % Raw language, no keywords.
 

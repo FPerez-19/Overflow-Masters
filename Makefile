@@ -27,6 +27,8 @@ help:
 	@echo ""
 	@echo "	make fast		- build once (quick iteration)"
 	@echo "	make notebook		- build properly (two passes)"
+	@echo "	make notebook-bw	- same page, pure black (bad printers)"
+	@echo "	make both		- notebook.pdf and notebook-bw.pdf"
 	@echo "	make test-compiles	- compile every snippet standalone"
 	@echo "	make showexcluded	- list headers no chapter.tex imports"
 	@echo "	make clean		- remove build intermediates"
@@ -40,11 +42,21 @@ notebook: | build
 	$(LATEXCMD) content/notebook.tex && $(LATEXCMD) content/notebook.tex
 	cp build/notebook.pdf notebook.pdf
 
+# Misma pagina pero en negro puro, para una impresora que no rinde el color.
+# El \def\nbmono lo activa; notebook.sty hace el resto.
+MONO = "\def\nbmono{}\input{content/notebook.tex}"
+notebook-bw: | build
+	$(LATEXCMD) -jobname notebook-bw $(MONO) </dev/null && \
+	$(LATEXCMD) -jobname notebook-bw $(MONO) </dev/null
+	cp build/notebook-bw.pdf notebook-bw.pdf
+
+both: notebook notebook-bw
+
 clean:
-	cd build && rm -f notebook.aux notebook.log notebook.tmp notebook.toc notebook.ptc notebook.pdf
+	cd build && rm -f notebook*.aux notebook*.log notebook*.tmp notebook*.toc notebook*.ptc notebook*.out notebook*.pdf
 
 veryclean: clean
-	rm -f notebook.pdf
+	rm -f notebook.pdf notebook-bw.pdf
 
 build:
 	mkdir -p build/
@@ -56,4 +68,4 @@ showexcluded: | build
 	grep -Rho '\\nbimport[^{]*{[^}]*}' content/ | sed 's/.*{//; s/}//' > build/headers_included
 	find ./content -path ./content/tex -prune -o \( -name "*.h" -o -name "*.java" \) -print | grep -vFf build/headers_included || true
 
-.PHONY: help fast notebook clean veryclean showexcluded test-compiles
+.PHONY: help fast notebook notebook-bw both clean veryclean showexcluded test-compiles

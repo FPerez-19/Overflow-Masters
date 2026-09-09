@@ -18,10 +18,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             texlive-latex-recommended texlive-latex-extra \
-            texlive-fonts-recommended texlive-plain-generic poppler-utils g++
+            texlive-fonts-recommended texlive-plain-generic poppler-utils g++ python3-pil
 
-      - name: Build the notebook
-        run: make notebook
+      - name: Build the notebook (colour and pure black)
+        run: make both
 
       - name: Check every snippet is imported
         run: |
@@ -40,6 +40,28 @@ jobs:
           if [ "$pages" -gt 25 ]; then
             echo "::warning::notebook.pdf is $pages pages, over the ICPC 25-page limit"
           fi
+
+      - name: The black-and-white build must match the colour one
+        run: |
+          # Distinto numero de paginas significa que el flag \nbmono movio el
+          # layout, no solo los colores: entonces las dos versiones ya no son
+          # la misma pagina y el hash impreso puede caer en otro lado.
+          bw=$(pdfinfo notebook-bw.pdf | awk '/^Pages:/{print $2}')
+          echo "notebook-bw.pdf is $bw pages"
+          [ "$bw" -eq "${{ steps.pages.outputs.count }}" ] || {
+            echo "::error::notebook-bw.pdf has $bw pages, notebook.pdf has ${{ steps.pages.outputs.count }}"; exit 1; }
+          # y no puede quedar ni un pixel de color
+          pdftoppm -png -r 60 notebook-bw.pdf /tmp/bw
+          python3 - <<'EOF'
+          import glob
+          from PIL import Image
+          bad = 0
+          for f in sorted(glob.glob('/tmp/bw-*.png')):
+              for r, g, b in Image.open(f).convert('RGB').getdata():
+                  if not r == g == b: bad += 1
+          print(f"pixeles con color en notebook-bw.pdf: {bad}")
+          raise SystemExit(1 if bad else 0)
+          EOF
 
       - name: Code must print straight quotes, not typographic ones
         run: |
@@ -90,7 +112,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: notebook
-          path: notebook.pdf
+          path: |
+            notebook.pdf
+            notebook-bw.pdf
 
       - name: Publish a versioned release
         if: github.ref == 'refs/heads/main'
@@ -104,12 +128,13 @@ jobs:
 
           Commit \`${GITHUB_SHA:0:7}\` · $pages pages · $snippets snippets, all compiling standalone.
 
-          The link below always points at the newest build:
-          <https://github.com/$GITHUB_REPOSITORY/releases/latest/download/notebook.pdf>"
+          Los links de abajo siempre apuntan al build mas nuevo:
+          color: <https://github.com/$GITHUB_REPOSITORY/releases/latest/download/notebook.pdf>
+          blanco y negro: <https://github.com/$GITHUB_REPOSITORY/releases/latest/download/notebook-bw.pdf>"
 
           # --latest makes GitHub resolve /releases/latest/download/notebook.pdf
           # here, so the permanent URL keeps working without a rolling tag.
-          gh release create "$tag" notebook.pdf \
+          gh release create "$tag" notebook.pdf notebook-bw.pdf \
             --title "Build ${{ github.run_number }} - $pages pages" \
             --notes "$notes" --latest
 

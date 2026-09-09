@@ -15,3 +15,10 @@ build/
 
 # CI builds the notebook and publishes it as a release, so it is not committed.
 notebook.pdf
+notebook-bw.pdf
+
+# Config de VS Code especifica de cada maquina: rutas absolutas al compilador
+# y a los includes del sistema. settings.json si va, ese es compartible.
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/tasks.json

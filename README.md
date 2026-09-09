@@ -10,8 +10,12 @@ content hash you can check against what you typed during a contest.
 
 ```sh
 make notebook        # two passes, so the table of contents settles
+make notebook-bw     # the same page in pure black, for a printer that
+                     # renders colour badly
+make both            # both PDFs
 make fast            # one pass, for quick iteration
 make test-compiles   # every snippet must compile standalone
+make stress          # every snippet against a brute force
 make showexcluded    # files no chapter.tex imports
 ```
 
@@ -19,6 +23,11 @@ The result is `notebook.pdf`. It is **not** committed — CI builds it on every 
 `main` and publishes it as a release, so the current build is always one click away:
 
 **[Download the latest notebook.pdf](https://github.com/FPerez-19/Overflow-Masters/releases/latest/download/notebook.pdf)**
+· **[black and white](https://github.com/FPerez-19/Overflow-Masters/releases/latest/download/notebook-bw.pdf)**
+
+The black-and-white build is the same page with every colour forced to pure black,
+keywords in bold and comments in italic. Print that one if the printer washes out
+colour: mid-tone blues and greens come out as pale grey on a tired laser.
 
 Every push to `main` also publishes its own numbered release (`v1`, `v2`, ...), so you can
 fetch the exact PDF the team carried to a given contest. The twenty most recent builds are
