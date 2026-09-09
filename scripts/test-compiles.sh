@@ -22,6 +22,14 @@ TMP=build/test-compiles
 mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT
 
+# El template es lo primero que se tipea en un contest y nada mas lo verifica:
+# el prelude de abajo lo corta en solve(), asi que lo compilamos entero aparte.
+if ! err=$("$CXX" -std=c++20 -w -fsyntax-only content/contest/Template.cpp 2>&1); then
+	echo "FAIL content/contest/Template.cpp"
+	echo "$err" | grep -E "error:" | head -3 | sed 's/^/      /'
+	exit 1
+fi
+
 # Template minus the x86-only perf pragmas (they break on arm64) and minus
 # solve()/main(); keeps includes, macros and typedefs.
 sed -e '/^#pragma GCC/d' -e '/^void solve/,$d' content/contest/Template.cpp > "$TMP/prelude.h"
